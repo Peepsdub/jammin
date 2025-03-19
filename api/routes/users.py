@@ -1,6 +1,5 @@
 from flask import Blueprint, Flask, jsonify, make_response, request, session
 from flask_session import Session
-from flask_cors import CORS
 from api.database_connector import get_db_connection
 import mysql.connector
 import os
