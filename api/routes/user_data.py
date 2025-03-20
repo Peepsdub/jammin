@@ -1,6 +1,5 @@
 import uuid
 from flask import Blueprint, Flask, jsonify, request, session
-from flask_cors import CORS
 from api.database_connector import get_db_connection
 import os
 from dotenv import load_dotenv
@@ -23,7 +22,6 @@ def get_users_data():
         if isinstance(response, dict) and "error" in response:
             raise Exception(response["error"]["message"])
         
-        print(response.data)
         return jsonify(response.data), 200
     except Exception as err:
         return jsonify({"error": f"Database error: {err}"}), 500
@@ -119,6 +117,7 @@ def get_user_music_data_by_id(user_id):
     try:
         conn = get_db_connection()
         if conn is None:
+            print("\n\n\n Connection Error!!! \n\n\n")
             return jsonify({"error": "Unable to connect to the database"}), 500
         
         try:
@@ -128,8 +127,7 @@ def get_user_music_data_by_id(user_id):
 
         row = conn.table("users_music_data").select("*").eq('user_id', str(user_uuid)).execute()
 
-        if isinstance(response, dict) and "error" in response:
-            raise Exception(response["error"]["message"])
+        print(f"\n\n\nResponse type: {type(row)}\n\n\n")
 
         if row:
             response = {
@@ -143,8 +141,14 @@ def get_user_music_data_by_id(user_id):
         else:
             response = {"error": "User not found"}
 
-        return jsonify(response.data), 200
+        print(f"\n\n\nResponse: {response}\n\n\n")
+
+        if isinstance(response, dict) and "error" in response:
+            raise Exception(response["error"]["message"])
+
+        return jsonify(response), 200
     except Exception as err:
+        print(f"\n\n\n Unknown Database Error!!! : {err}\n\n\n")
         return jsonify({"error": f"Database error: {err}"}), 500
 
 #For fetching specific number of top artists  
@@ -153,16 +157,16 @@ def get_user_top_artists_by_id(user_id, limit):
     try:
         conn = get_db_connection()
         if conn is None:
+            print("\n\n\n Connection Error!!! \n\n\n")
             return jsonify({"error": "Unable to connect to the database"}), 500
 
         row = conn.table("users_music_data").select("*").eq('user_id', user_id).execute()
 
-        if isinstance(response, dict) and "error" in response:
-            raise Exception(response["error"]["message"])
+        print(f"\n\n\nResponse type: {type(row)}\n\n\n")
 
         if row:
-            top_artists_list = row["top_artists"].split(", ")[:limit]
-            top_artists_pictures_list = row["top_artists_pictures"].split(", ")[:limit]
+            top_artists_list = row[0]["top_artists"].split(", ")[:limit]
+            top_artists_pictures_list = row[0]["top_artists_pictures"].split(", ")[:limit]
             response = {
                 "user_id": user_id,
                 "top_artists": top_artists_list,
@@ -171,6 +175,12 @@ def get_user_top_artists_by_id(user_id, limit):
         else:
             response = {"error": "User not found"}
 
-        return jsonify(response.data), 200
+        print(f"\n\n\nResponse: {response}\n\n\n")
+
+        if isinstance(response, dict) and "error" in response:
+            raise Exception(response["error"]["message"])
+
+        return jsonify(response), 200
     except Exception as err:
+        print(f"\n\n\n Unknown Database Error!!! : {err}\n\n\n")
         return jsonify({"error": f"Database error: {err}"}), 500
