@@ -1,6 +1,5 @@
 from flask import Blueprint, Flask, jsonify, request, session
 from flask_session import Session
-from flask_cors import CORS
 from api.database_connector import get_db_connection
 import mysql.connector
 import os
@@ -20,12 +19,15 @@ def get_matches():
         if conn is None:
             return jsonify({"error": "Unable to connect to the database"}), 500
         response = conn.table("matches").select("*").execute()
+
+        #print(f"\n\n\nResponse: {response}\n\n\n")
         
         if isinstance(response, dict) and "error" in response:
             raise Exception(response["error"]["message"])
 
-        return jsonify(response.data), 200
+        return jsonify(response), 200
     except Exception as err:
+        #print(f"\n\n\nDatabase error: {err}\n\n\n")
         return jsonify({"error": f"Database error: {err}"}), 500
     
 @matches_routes.route("/api/matches/<match_id>", methods=["GET"])
@@ -42,11 +44,14 @@ def get_match(match_id):
         
         response = conn.table("matches").select("*").eq('match_id', str(match_uuid)).execute()
 
+        #print(f"\n\n\nResponse: {response}\n\n\n")
+
         if isinstance(response, dict) and "error" in response:
             raise Exception(response["error"]["message"])
 
-        return jsonify(response.data), 200
+        return jsonify(response), 200
     except Exception as err:
+        #print(f"\n\n\nDatabase error: {err}\n\n\n")
         return jsonify({"error": f"Database error: {err}"}), 500
 
 @matches_routes.route("/api/matches", methods=["POST"])
