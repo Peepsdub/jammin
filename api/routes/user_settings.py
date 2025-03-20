@@ -1,7 +1,6 @@
 import uuid
 from flask import Blueprint, Flask, jsonify, request, session
 from flask_session import Session
-from flask_cors import CORS
 from api.database_connector import get_db_connection
 import mysql.connector
 import os
@@ -26,7 +25,7 @@ def get_user_settings():
         if isinstance(response, dict) and "error" in response:
             raise Exception(response["error"]["message"])
 
-        return jsonify(response.data), 200
+        return jsonify(response), 200
     except Exception as err:
         return jsonify({"error": f"Database error: {err}"}), 500
 
@@ -48,7 +47,7 @@ def get_user_setting(setting_id):
         if isinstance(response, dict) and "error" in response:
             raise Exception(response["error"]["message"])
 
-        return jsonify(response.data), 200
+        return jsonify(response), 200
     except Exception as err:
         return jsonify({"error": f"Database error: {err}"}), 500
     
